@@ -187,30 +187,39 @@ class SampleControllerAsync(Node):
     ####
     def rockPaperScissors(self, input1, input2):
         if input1 == input2:
+            if input2 == r:
+                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
+            elif input2 == p:
+                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
+            else:
+                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
             #tie.play()
             return tWin
         elif input1 == r:
-                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
                 if input2 == p:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
                     #lose.play()
                     return pWin
                 else:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageScissors.jpg")
                     #win.play()
                     return yWin 
         elif input1 == p:
-                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
                 if input2 == s:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageScissors.jpg")
                     #lose.play()
                     return pWin
                 else:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
                     #win.play()
                     return yWin 
         elif input1 == s:
-                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageScissors.jpg")
                 if input2 == r:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
                     #lose.play()
                     return pWin
                 else:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
                     #win.play()
                     return yWin
 ####
