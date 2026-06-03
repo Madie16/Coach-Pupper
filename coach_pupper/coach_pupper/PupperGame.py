@@ -342,18 +342,14 @@ def moveGen():
 #
 # Purpose: Detect user move based on color sensors.
 ####           
-def reader(controller):
-    echo_obj = echo_camera()
+def reader(controller, echo_obj):
+    # echo_obj = echo_camera()
     robotMove = moveGen()
     userMove = "Nothing :("
     deadline = time.time() + 10
 
     rclpy.spin_once(echo_obj, timeout_sec=0.1)
     cv2.waitKey(1)
-
-    # while echo_obj.result == "" and time.time() < deadline:
-    #     rclpy.spin_once(echo_obj, timeout_sec=0.1)
-    #     cv2.waitKey(1)
 
     result = echo_obj.result
     if result == "green":
@@ -364,7 +360,7 @@ def reader(controller):
         userMove = s
     outcome = controller.rockPaperScissors(userMove, robotMove)
     print("Your move was", userMove, "and Pupper's move was", robotMove)
-    echo_obj.destroy_node()
+    # echo_obj.destroy_node()
     return outcome
 
 ####
@@ -379,11 +375,13 @@ def main():
     #disp.show_image(holder3)  
     print("Welcome, type Ready to begin!")
     answer = input()
-    while answer != "N": #REPLACE WITH DETECTION
+    for i in range (5): #REPLACE WITH DETECTION
         holder3 = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/coachPupper.jpg"
         #disp.show_image(holder3)
         print("Show your move!")
-        answer = reader(sample_controller)
+        echo_obj = echo_camera()
+        answer = reader(sample_controller, echo_obj)
+        echo_obj.destroy_node()
         outcome = answer
         if outcome == tWin:
             pygame.mixer.music.load("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/music/replay.mp3")
