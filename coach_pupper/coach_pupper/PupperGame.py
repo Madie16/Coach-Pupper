@@ -289,18 +289,14 @@ class echo_camera(Node):
 		#Detects green, changes class variable accordingly to move turtle and logs message
 		
 		if green:
-		    self.result = "green"
-		    self.get_logger().info('Receiving green')
-            
-		#go commands 
+			self.result = "green"
+			self.get_logger().info('Receiving green')
 		elif red:
-		    self.result = "red"
-		    self.get_logger().info('Receiving red')
-            
+			self.result = "red"
+			self.get_logger().info('Receiving red')
 		elif yellow:
-		    self.result = "yellow"
-		    self.get_logger().info('Receiving Yellow')
-		return result
+			self.result = "yellow"
+			self.get_logger().info('Receiving Yellow')
 
 #Change all vlc to sd
 #os.add_dll_directory(r"C:\Program Files\VideoLAN\VLC") 
@@ -341,12 +337,21 @@ def reader(controller):
     echo_obj = echo_camera()
     robotMove = moveGen()
     userMove = "Nothing :("
+    deadline = time.time() + 10
+
+    rclpy.spin_once(echo_obj, timeout_sec=0.1)
+    cv2.waitKey(1)
+
+    # while echo_obj.result == "" and time.time() < deadline:
+    #     rclpy.spin_once(echo_obj, timeout_sec=0.1)
+    #     cv2.waitKey(1)
+
     result = echo_obj.result
-    if result == "green": #REPLACE WITH COLOR DETECTION
+    if result == "green":
         userMove = r
-    elif result == "yellow": #REPLACE WITH COLOR DETECTION
+    elif result == "yellow":
         userMove = p
-    elif result == "red": #REPLACE WITH COLOR DETECTION
+    elif result == "red":
         userMove = s
     outcome = controller.rockPaperScissors(userMove, robotMove)
     print("Your move was", userMove, "and Pupper's move was", robotMove)
@@ -366,26 +371,26 @@ def main():
     print("Welcome, type Ready to begin!")
     answer = input()
     while answer != "N": #REPLACE WITH DETECTION
-    	holder3 = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/coachPupper.jpg"
-    	#disp.show_image(holder3)
-    	print("Show your move!")
-    	answer = reader(sample_controller)
-    	outcome = answer
-    	if outcome == tWin:
+        holder3 = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/coachPupper.jpg"
+        #disp.show_image(holder3)
+        print("Show your move!")
+        answer = reader(sample_controller)
+        outcome = answer
+        if outcome == tWin:
             pygame.mixer.music.load("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/music/replay.mp3")
             pygame.mixer.music.play()
             time.sleep(2)
             print(tWin)
             time.sleep(3)
             sample_controller.send_workout("lunge", peer)
-    	if outcome == pWin:
+        if outcome == pWin:
             pygame.mixer.music.load("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/music/loss.mp3")
             pygame.mixer.music.play()
             time.sleep(2)
             print(pWin)
             time.sleep(3)
             sample_controller.send_workout("pushup", peer)
-    	if outcome == yWin:
+        if outcome == yWin:
             pygame.mixer.music.load("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/music/win.mp3")
             pygame.mixer.music.play()
             time.sleep(2)
