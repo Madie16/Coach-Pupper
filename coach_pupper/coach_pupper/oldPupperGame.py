@@ -21,7 +21,6 @@ import time
 import pygame
 pygame.mixer.init()
 from pupper_interfaces.srv import GoPupper
-from mini_pupper_interfaces.srv import DanceCommand
 import numpy as np 
 from sensor_msgs.msg import Image as sensormsg
 import cv2
@@ -57,14 +56,14 @@ class SampleControllerAsync(Node):
     def __init__(self):
         # initalize
         super().__init__('sample_controller')
-        self.cli = self.create_client(DanceCommand, 'dance_command')
+        self.cli = self.create_client(GoPupper, 'pup_command')
         self.thinking = False
         # Check once per second if service matching the name is available 
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
 
         # Create a new request object.
-        self.req = DanceCommand.Request()
+        self.req = GoPupper.Request()
 
     ###
     # Name: send_move_request
@@ -72,8 +71,8 @@ class SampleControllerAsync(Node):
     # Arguments:  self (reference the current class), move_command (the command we plan to send to the server)
     #####
     def send_move_request(self, move_command):
-        self.req = DanceCommand.Request()
-        self.req.data = move_command
+        self.req = GoPupper.Request()
+        self.req.command = move_command
         # Debug - uncomment if needed
         #print("In send_move_request, command is: %s" % self.req.command)
         self.future = self.cli.call_async(self.req)  # send the command to the server
@@ -89,8 +88,15 @@ class SampleControllerAsync(Node):
         # Open the image (Your image file name goes here)
         MAX_WIDTH = 320
         disp = Display()
-        imgLoc = workoutLoc
-        imgFile = Image.open(imgLoc)
+        imgFile = None
+        print("This is image open ", workoutLoc)
+        try:
+            imgLoc = workoutLoc
+            print("This is image open imageLoc", imgLoc)
+            imgFile = Image.open(imgLoc)
+        except:
+            print("Error")
+        print("Huzzah")
         # Convert to RGBA if needed
         if (imgFile.format == 'PNG'):
             if (imgFile.mode != 'RGBA'):
@@ -106,16 +112,10 @@ class SampleControllerAsync(Node):
     # Purpose: Make Pupper do a pushup
     ####
     def send_pushup(self):
-        fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/pushup1.jpg"
-        self.image_open(fileLoc)
-        self.send_move_request("move_forward")
-        self.send_move_request("move_forward")
-        self.send_move_request("move_forward")
-        fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/pushup2.jpg"
-        self.image_open(fileLoc)
-        self.send_move_request("move_backward")
-        self.send_move_request("move_backward")
-        self.send_move_request("move_backward")
+        self.send_move_request("tilt_down")
+        self.send_move_request("move_down")
+        self.send_move_request("move_up")
+        self.send_move_request("tilt_up")
     
     ####
     # Name: send_squat
@@ -123,14 +123,10 @@ class SampleControllerAsync(Node):
     # Purpose: Make Pupper do a squat
     ####
     def send_squat(self):
-        fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/squat1.jpg"
-        self.image_open(fileLoc)
-        self.send_move_request("move_forward")
-        self.send_move_request("move_left")
-        fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/squat2.jpg"
-        self.image_open(fileLoc)
-        self.send_move_request("move_backward")
-        self.send_move_request("move_right")
+        self.send_move_request("tilt_up")
+        self.send_move_request("move_down")
+        self.send_move_request("move_up")
+        self.send_move_request("tilt_down")
 
     ####
     # Name: send_lunge
@@ -138,16 +134,12 @@ class SampleControllerAsync(Node):
     # Purpose: Make Pupper do a lunge
     ####
     def send_lunge(self):
-        fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/lunges1.jpg"
-        self.image_open(fileLoc)
-        self.send_move_request("move_left")
-        self.send_move_request("move_left")
-        self.send_move_request("move_left")
-        fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/lunges2.jpg"
-        self.image_open(fileLoc)
-        self.send_move_request("move_right")
-        self.send_move_request("move_right")
-        self.send_move_request("move_right")
+        self.send_move_request("tilt_left")
+        #self.send_move_request("move_left")
+        self.send_move_request("tilt_right")
+        self.send_move_request("tilt_right")
+        #self.send_move_request("move_right")
+        self.send_move_request("tilt_left")
     
     ####
     # Name: workout_loop
@@ -164,33 +156,14 @@ class SampleControllerAsync(Node):
             workout_movement = self.send_lunge
         start_time = time.time()
         pygame.mixer.music.play()
-        while time.time() - start_time < 15:
+        while time.time() - start_time < 30:
             if peer:
                 workout_movement()
             else:
-            	if workout == "pushup":
-            	    fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/pushup1.jpg"
-            	    self.image_open(fileLoc)
-            	    time.sleep(1)
-            	    fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/pushup2.jpg"
-            	    self.image_open(fileLoc)
-            	elif workout == "squat":
-            	    fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/squat1.jpg"
-            	    self.image_open(fileLoc)
-            	    time.sleep(1)
-            	    fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/squat2.jpg"
-            	    self.image_open(fileLoc)
-            	else:
-                    fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/lunges1.jpg"
-                    self.image_open(fileLoc)
-                    time.sleep(1)
-                    fileLoc = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/workouts2/lunges2.jpg"
-                    self.image_open(fileLoc)
+                pygame.mixer.music.stop()
+                pass
         pygame.mixer.music.stop()
     
-    def baseImg(self):
-        self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/coachPupper.jpg")
-
     ####
     # Name: send_workout
     #
@@ -206,41 +179,47 @@ class SampleControllerAsync(Node):
         self.image_open(fileLoc)
         self.workout_loop(workout, peer)
         # Change this to default image
-        self.baseImg()
+        #self.image_open("/home/ubuntu/ros2_ws/src/finalproject/finalproject/Push-Up-ezgif.com-resize.gif")
     ####
     # Name: rockPaperScissors
     #
     # Purpose: Takes in the input from the user(input1) and random robot(input2) to detemine workout move. 
     ####
     def rockPaperScissors(self, input1, input2):
-        if input2 == r:
-            self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
-        elif input2 == p:
-            self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
-        else:
-            self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageScissors.jpg")
         if input1 == input2:
+            if input2 == r:
+                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
+            elif input2 == p:
+                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
+            else:
+                self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
             #tie.play()
             return tWin
         elif input1 == r:
                 if input2 == p:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
                     #lose.play()
                     return pWin
                 else:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageScissors.jpg")
                     #win.play()
                     return yWin 
         elif input1 == p:
                 if input2 == s:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageScissors.jpg")
                     #lose.play()
                     return pWin
                 else:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
                     #win.play()
                     return yWin 
         elif input1 == s:
                 if input2 == r:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imageRock.jpg")
                     #lose.play()
                     return pWin
                 else:
+                    self.image_open("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/gameImages/imagePaper.jpg")
                     #win.play()
                     return yWin
 ####
@@ -263,14 +242,11 @@ class echo_camera(Node):
 		self.hsv_red_lower = [0, 85, 85]
 		self.hsv_red_upper = [5, 255, 255] #prev lower
 		
-		self.hsv_green_lower = [50, 50, 45]
+		self.hsv_green_lower = [40, 50, 45]
 		self.hsv_green_upper = [70, 255, 255] #prev was hsv_lower1, upper1
 
 		self.hsv_yellow_lower = [23, 50, 45]
-		self.hsv_yellow_upper = [30, 255, 255]
-		
-		self.hsv_blue_lower = [83, 50, 45]
-		self.hsv_blue_upper = [100, 255, 255]
+		self.hsv_yellow_upper = [30, 255, 255] 
 	
 	# Callback function to echo the video frame being received	
 	def echo_topic(self, data):
@@ -301,18 +277,12 @@ class echo_camera(Node):
 		
 		mask_yellow = cv2.inRange(hsv, lower_yellow, upper_yellow)
 		
-		lower_blue = np.array(self.hsv_blue_lower)
-		upper_blue = np.array(self.hsv_blue_upper)
-		
-		mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
-		
 		red = np.any(mask_red > 0)
 		green = np.any(mask_green > 0)
 		yellow = np.any(mask_yellow > 0)
-		blue = np.any(mask_blue > 0)
 	
 	#combining the masks so that you can detect either one in your frame
-		combMask  = cv2.bitwise_or(mask_red, mask_green, mask_yellow, mask_blue)
+		combMask  = cv2.bitwise_or(mask_red, mask_green, mask_yellow)
 		
 		masked_frame1 = cv2.bitwise_and(current_frame, current_frame, mask=combMask)
 		
@@ -335,10 +305,7 @@ class echo_camera(Node):
 			self.get_logger().info('Receiving red')
 		elif yellow:
 			self.result = "yellow"
-			self.get_logger().info('Receiving yellow')
-		elif blue:
-			self.result = "blue"
-			self.get_logger().info('Receiving blue')
+			self.get_logger().info('Receiving Yellow')
 
 #Change all vlc to sd
 #os.add_dll_directory(r"C:\Program Files\VideoLAN\VLC") 
@@ -375,14 +342,18 @@ def moveGen():
 #
 # Purpose: Detect user move based on color sensors.
 ####           
-def reader(controller, echo_obj):
+def reader(controller):
+    echo_obj = echo_camera()
     robotMove = moveGen()
     userMove = "Nothing :("
     deadline = time.time() + 10
 
-    while echo_obj.result == "" and time.time() < deadline:
-        rclpy.spin_once(echo_obj, timeout_sec=0.1)
-        cv2.waitKey(1)
+    rclpy.spin_once(echo_obj, timeout_sec=0.1)
+    cv2.waitKey(1)
+
+    # while echo_obj.result == "" and time.time() < deadline:
+    #     rclpy.spin_once(echo_obj, timeout_sec=0.1)
+    #     cv2.waitKey(1)
 
     result = echo_obj.result
     if result == "green":
@@ -392,10 +363,8 @@ def reader(controller, echo_obj):
     elif result == "red":
         userMove = s
     outcome = controller.rockPaperScissors(userMove, robotMove)
-    print("*************************************")
-    print("Your Move: ", userMove)
-    print("Coach Pupper's Move: ", robotMove)
-    print("*************************************")
+    print("Your move was", userMove, "and Pupper's move was", robotMove)
+    echo_obj.destroy_node()
     return outcome
 
 ####
@@ -408,79 +377,33 @@ def main():
     sample_controller = SampleControllerAsync()
     holder3 = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/coachPupper.jpg"
     #disp.show_image(holder3)  
-    print("")
-    print("**************************************************")
-    print("Welcome to Coach Pupper's Games!")
-    print("")
-    print("Hold up a corresponding move to the camera.")
-    print("Based on the outcome do your workout.")
-    print("")
-    print("Choose how to interact with Pupper:")
-    print("Press 'L' for leader mode")
-    print("Press 'P' for peer mode")
-    print("**************************************************")
-    print("")
+    print("Welcome, type Ready to begin!")
     answer = input()
-    if answer == "L" or answer == 'l':
-    	peer = False
-    else:
-    	peer = True
-    print("")
-    print("")
-    start_time = time.time()
-    counter = 0
-    while counter < 3: #REPLACE WITH DETECTION
+    while answer != "N": #REPLACE WITH DETECTION
         holder3 = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/coachPupper.jpg"
         #disp.show_image(holder3)
-        print("**************************************************")
-        print("Press 'r' + enter to play, or 'q' + enter to quit!")
-        print("**************************************************")
-        answer = input()
-        if answer == "q" or answer == "Q":
-            break
-
         print("Show your move!")
-        
-        time.sleep(2)
-        sample_controller.baseImg()
-        echo_obj = echo_camera()
-        answer = reader(sample_controller, echo_obj)
-        echo_obj.destroy_node()
+        answer = reader(sample_controller)
         outcome = answer
-        counter = counter + 1
         if outcome == tWin:
             pygame.mixer.music.load("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/music/replay.mp3")
             pygame.mixer.music.play()
-            print("")
-            print("******************")
-            print("Do some lunges!")
-            print("******************")
-            print("")
+            time.sleep(2)
             print(tWin)
             time.sleep(3)
             sample_controller.send_workout("lunge", peer)
-            
         if outcome == pWin:
             pygame.mixer.music.load("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/music/loss.mp3")
             pygame.mixer.music.play()
-            print("")
-            print("******************")
-            print("Do some pushups!")
-            print("******************")
-            print("")
+            time.sleep(2)
             print(pWin)
             time.sleep(3)
             sample_controller.send_workout("pushup", peer)
-            
         if outcome == yWin:
             pygame.mixer.music.load("/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/music/win.mp3")
             pygame.mixer.music.play()
+            time.sleep(2)
             print(yWin)
-            print("")
-            print("******************")
-            print("Do some squats!")
-            print("******************")
-            print("")
             time.sleep(3)
             sample_controller.send_workout("squat", peer)
     print("Thanks for playing with Pupper!")

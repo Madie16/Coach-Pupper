@@ -33,6 +33,10 @@ from geometry_msgs.msg import Twist
 # To let us set timers
 import time   # Is on our side, yes it is. And if you don't know the song, here you go! https://www.youtube.com/watch?v=8wDUhw15E-s
 
+# Pupper files to control pitch, roll, yaw referenced from dance_server.py in provided pupper folder
+from geometry_msgs.msg import Pose
+from .math_operations import quaternion_from_euler
+
 ####
 # Name: Minimal Service
 #
@@ -54,6 +58,9 @@ class MinimalService(Node):
         # publish twist 
         self.vel_publisher_ = self.create_publisher(Twist, 'cmd_vel', 10)
 
+        # publish command
+        self.pose_publisher_ = self.create_publisher(Pose,'reference_body_pose', 10)        
+
         # timer interval (need to wait between messages)
         self.interval = 0.5  # .5 seconds
 
@@ -64,9 +71,9 @@ class MinimalService(Node):
     # Arguments: self, the request (e.g., the command from client), the response (e.g., success)
     #####
     def pup_callback(self, request, response):
-        # We'll be publishing a velocity message. Calling the Twist constructor zeroes it out.  
+        # We'll be publishing a velocity message/pose. Calling the Twist/Pose constructor zeroes it out.  
         velocity_cmd = Twist()
-
+        pose_cmd = Pose()
         ## Debug - if you're curious what message this method got, uncomment this out
         #print("In server pup_callback, got this command: %s" % request.command)
 
@@ -121,28 +128,48 @@ class MinimalService(Node):
             time.sleep(self.interval)
 
         elif (request.command == 'tilt_up'):
-            velocity_cmd.angular.y = 2.0
-            self.vel_publisher_.publish(velocity_cmd)
+            x, y, z, w = quaternion_from_euler(0.0, -0.3, 0.0)
+            pose_cmd.orientation.x = x
+            pose_cmd.orientation.y = y
+            pose_cmd.orientation.z = z
+            pose_cmd.orientation.w = w
+
+            self.pose_publisher_.publish(pose_cmd)
             self.get_logger().info('Publishing: "%s"' % request.command)
-            time.sleep(self.interval) 
+            time.sleep(self.interval)  # Make sure the robot moved
 
         elif (request.command == 'tilt_down'):
-            velocity_cmd.angular.y = -2.0
-            self.vel_publisher_.publish(velocity_cmd)
+            x, y, z, w = quaternion_from_euler(0.0, 0.3, 0.0)
+            pose_cmd.orientation.x = x
+            pose_cmd.orientation.y = y
+            pose_cmd.orientation.z = z
+            pose_cmd.orientation.w = w
+
+            self.pose_publisher_.publish(pose_cmd)
             self.get_logger().info('Publishing: "%s"' % request.command)
-            time.sleep(self.interval)
-        
+            time.sleep(self.interval)  # Make sure the robot moved
+
         elif (request.command == 'tilt_left'):
-            velocity_cmd.angular.x = 2.0
-            self.vel_publisher_.publish(velocity_cmd)
+            x, y, z, w = quaternion_from_euler(0.0, 0.0, 0.3)
+            pose_cmd.orientation.x = x
+            pose_cmd.orientation.y = y
+            pose_cmd.orientation.z = z
+            pose_cmd.orientation.w = w
+
+            self.pose_publisher_.publish(pose_cmd)
             self.get_logger().info('Publishing: "%s"' % request.command)
-            time.sleep(self.interval)
+            time.sleep(self.interval)  # Make sure the robot moved
 
         elif (request.command == 'tilt_right'):
-            velocity_cmd.angular.x = -2.0
-            self.vel_publisher_.publish(velocity_cmd)
+            x, y, z, w = quaternion_from_euler(0.0, 0.0, -0.3)
+            pose_cmd.orientation.x = x
+            pose_cmd.orientation.y = y
+            pose_cmd.orientation.z = z
+            pose_cmd.orientation.w = w
+
+            self.pose_publisher_.publish(pose_cmd)
             self.get_logger().info('Publishing: "%s"' % request.command)
-            time.sleep(self.interval)
+            time.sleep(self.interval)  # Make sure the robot moved
 
         elif (request.command == 'stay'):
             time.sleep(self.interval)  # do nothing
