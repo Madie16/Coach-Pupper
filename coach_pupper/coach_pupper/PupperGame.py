@@ -1,7 +1,9 @@
 ########
 # Name: pupperGame.py
 #
-# Purpose: Run the base game code, main code taht will direct pupper to workouts.
+# Purpose: Run the base game code, main code that will direct pupper to workouts. Also includes workout
+# and camera color detection code, as we were having issues when trying to import them as separate files
+# when using the minipupper.
 #
 # Usage: After conpling and sourcing the ~/ros2_ws/install/setup.bash , launch the service like this:
 #         ros2 run go_pupper_srv service
@@ -38,7 +40,8 @@ import RPi.GPIO as GPIO
 #import sounddevice as sd
 import time
 
-# There are 4 areas for touch actions
+# There are 4 areas for touch actions, ultimately not used in current iteration
+# but could be used for future work, as touch detection is implemented
 # Each GPIO to each touch area
 touchPin_Front = 6
 touchPin_Left  = 3
