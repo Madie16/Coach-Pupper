@@ -1,3 +1,19 @@
+########
+# Name: math_operations
+#
+# Purpose: Sample code from minipupper used to convert quaternions to euler angles and vice versa
+# used to change pitch, roll, and yaw in service_go_pupper.
+#
+# Usage: This is a helper file that isn't run on its own but is used by service_go_pupper
+#
+# Author: Prof. Riek <lriek@ucsd.edu>
+#
+# Acknowledgements: Used the code from ROS 2 Tutorials and MangDang's ROS git repo 
+#  https://github.com/mangdangroboticsclub/mini_pupper_ros/blob/ros2-dev/mini_pupper_dance/mini_pupper_dance/math_operations.py
+#
+# Date: 11 June 2026
+########
+
 #!/usr/bin/env python3
 
 import math
@@ -9,7 +25,11 @@ import math
 # this implementation assumes normalized quaternion
 # converts to Euler angles in 3-2-1 sequence
 
-
+###
+# Name: euler_from_quaternion
+# Purpose: Converts quaternion values to euler angles
+# Arguments:  x, y, z, w the corresponding unit quaternion values
+#####
 def euler_from_quaternion(x, y, z, w):
     # roll (x-axis rotation)
     sinr_cosp = 2.0 * (w * x + y * z)
@@ -31,6 +51,11 @@ def euler_from_quaternion(x, y, z, w):
 
 
 # roll (x), pitch (Y), yaw (z)
+###
+# Name: quaternion_from_euler
+# Purpose: Converts euler angles to quaternion
+# Arguments:  roll value, pitch value, yaw value
+#####
 def quaternion_from_euler(roll, pitch, yaw):
     cr = math.cos(roll * 0.5)
     sr = math.sin(roll * 0.5)
