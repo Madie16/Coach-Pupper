@@ -6,12 +6,15 @@
 # when using the minipupper.
 #
 # Usage: After conpling and sourcing the ~/ros2_ws/install/setup.bash , launch the service like this:
-#         ros2 run go_pupper_srv service
+#         ros2 launch depthai_ros_driver camera.launch.py
+#         ros2 lauch mini_pupper_bringup bringup.launch.py
+#         ros2 run coach_pupper service
+#         ros2 run coach_pupper pupper_game
 #
-# Author: Madison Tran <mat034@ucsd.edu>
+# Author: Madison Tran <mat034@ucsd.edu>, Audrey Liang <ayliang@ucsd.edu>, Oscar Tran #<ostran@ucsd.edu>
 #
-# Acknowledgements: Used some code from BIMM 182 and CSE 8A
-# Date: 28 May 2026
+# Acknowledgements: Used some code from BIMM 182 and CSE 8A, as well as code from Lab 1 and Lab # 2.
+# Date: 11 June 2026
 #
 ########
 
@@ -325,7 +328,6 @@ class echo_camera(Node):
 		img_window_name = "color_detected"
 		cv2.namedWindow(img_window_name, cv2.WINDOW_NORMAL)
 		cv2.resizeWindow(img_window_name, 800, 400)
-		#cv2.imshow(img_window_name, np.hstack([current_frame, masked_frame]))
 		cv2.imshow(img_window_name, np.hstack([current_frame, masked_frame1]))
 		#This shows each image frame for 1 millisecond, try playing around with different wait values to achieve the video framerate you want!
 		#Detects green, changes class variable accordingly to move turtle and logs message
@@ -343,11 +345,8 @@ class echo_camera(Node):
 			self.result = "blue"
 			self.get_logger().info('Receiving blue')
 
-#Change all vlc to sd
-#os.add_dll_directory(r"C:\Program Files\VideoLAN\VLC") 
-#import vlc
-#from workout import send_workout
-#input1 will be user, input2 will be computer
+
+
 r = "Rock"
 p = "Paper"
 s = "Scissors"
@@ -432,9 +431,8 @@ def main():
     print("")
     start_time = time.time()
     counter = 0
-    while counter < 3: #REPLACE WITH DETECTION
+    while counter < 3: 
         holder3 = "/home/ubuntu/ros2_ws/src/coach_pupper/coach_pupper/coachPupper.jpg"
-        #disp.show_image(holder3)
         print("**************************************************")
         print("Press 'r' + enter to play, or 'q' + enter to quit!")
         print("**************************************************")
